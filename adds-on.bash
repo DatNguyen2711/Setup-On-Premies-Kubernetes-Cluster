@@ -1,9 +1,6 @@
 #!/bin/bash
 
 
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-
-
 
 kubectl apply -f https://raw.githubusercontent.com/techiescamp/kubeadm-scripts/main/manifests/metrics-server.yaml
 
@@ -20,6 +17,11 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/cont
 
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.1/cert-manager.yaml
 
+
+helm repo add cilium https://helm.cilium.io/
+
+helm install cilium cilium/cilium --version 1.16.3 \
+  --namespace kube-system
 
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
