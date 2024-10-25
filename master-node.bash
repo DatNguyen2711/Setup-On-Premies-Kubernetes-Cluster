@@ -91,3 +91,19 @@ sudo kubeadm init --apiserver-advertise-address=$IPADDR \
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+
+
+
+CONTROL_PLANE_IP=$(ip -4 addr show ens33 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+
+kubectl get cm -n kube-system kubeadm-config -o yaml > kubeadm-config-backup.yaml
+
+kubectl get cm -n kube-system kubeadm-config -o yaml | \
+  sed "/clusterName:/a\    controlPlaneEndpoint: $CONTROL_PLANE_IP" | \
+  kubectl apply -f -
+
+kubectl -n kube-system delete pod -l component=kube-apiserver
+
+echo "Reset configuration for master node."
+
