@@ -70,15 +70,15 @@ sudo apt-mark hold kubelet kubeadm kubectl
 sudo apt-get install -y jq
 
 # Retrieve the IP address of the node and set it in the kubelet configuration
-local_ip="$(ip --json addr show ens33 | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
+network_interface="$(ls /sys/class/net | grep -v lo)"
+local_ip="$(ip --json addr show $network_interface | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
 cat > /etc/default/kubelet << EOF
 KUBELET_EXTRA_ARGS=--node-ip=$local_ip
 EOF
-
 # Set the environment variables for the IP address of the master node and Pod CIDR
-IPADDR="$(ip --json addr show ens33 | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
+IPADDR="$(ip --json addr show $network_interface | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
 NODENAME=$(hostname -s)
-POD_CIDR="$(ip -o -f inet addr show ens33 | awk '{print $4}' | sed 's/\.[0-9]*\//\.0\//')"
+POD_CIDR="$(ip -o -f inet addr show $network_interface | awk '{print $4}' | sed 's/\.[0-9]*\//\.0\//')"
 
 # Initialize the Kubernetes cluster with kubeadm, using the master node's IP address
 # and specifying the Pod CIDR. Ignore swap preflight checks.
@@ -95,7 +95,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 
 
-CONTROL_PLANE_IP=$(ip -4 addr show ens33 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+CONTROL_PLANE_IP=$(ip -4 addr show $network_interface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 
 kubectl get cm -n kube-system kubeadm-config -o yaml > kubeadm-config-backup.yaml
 
