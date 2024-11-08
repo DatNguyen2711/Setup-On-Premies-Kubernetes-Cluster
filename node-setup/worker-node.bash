@@ -39,6 +39,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable crio --now
 sudo systemctl start crio.service
 
+network_interface="$(ls /sys/class/net | grep -v lo)"
 
 
 VERSION="v1.30.0"
@@ -56,7 +57,6 @@ echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 
 
 
-
 sudo apt-get update -y
 
 
@@ -71,7 +71,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 
 sudo apt-get install -y jq
-local_ip="$(ip --json addr show ens33 | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
+local_ip="$(ip --json addr show $network_interface | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
 cat > /etc/default/kubelet << EOF
 KUBELET_EXTRA_ARGS=--node-ip=$local_ip
 EOF
