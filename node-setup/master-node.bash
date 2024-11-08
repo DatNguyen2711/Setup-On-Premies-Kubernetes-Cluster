@@ -76,9 +76,9 @@ KUBELET_EXTRA_ARGS=--node-ip=$local_ip
 EOF
 
 # Set the environment variables for the IP address of the master node and Pod CIDR
-IPADDR="192.168.0.0"
+IPADDR="$(ip --json addr show ens33 | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
 NODENAME=$(hostname -s)
-POD_CIDR="192.168.0.0/24"
+POD_CIDR="$(ip -o -f inet addr show ens33 | awk '{print $4}' | sed 's/\.[0-9]*\//\.0\//')"
 
 # Initialize the Kubernetes cluster with kubeadm, using the master node's IP address
 # and specifying the Pod CIDR. Ignore swap preflight checks.
