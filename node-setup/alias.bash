@@ -63,4 +63,5 @@ alias ktn="kt nodes"
 EOL
 
 
-source ~/.bashrc
+chmod +x alias.sh
+./alias.sh
