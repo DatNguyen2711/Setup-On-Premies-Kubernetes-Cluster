@@ -84,7 +84,8 @@ POD_CIDR="$(ip -o -f inet addr show $network_interface | awk '{print $4}' | sed 
 # and specifying the Pod CIDR. Ignore swap preflight checks.
 sudo kubeadm init --apiserver-advertise-address=$IPADDR \
                   --apiserver-cert-extra-sans=$IPADDR \
-                  --pod-network-cidr=$POD_CIDR --node-name $NODENAME \
+                  --pod-network-cidr=$POD_CIDR \
+                  --node-name $NODENAME \
                   --ignore-preflight-errors Swap
 
 # Init the HA Cluster
@@ -92,6 +93,7 @@ kubeadm init --control-plane-endpoint="192.168.132.100:6443" \ # VIP of your Loa
                     --upload-certs  \
                     --apiserver-cert-extra-sans="192.168.132.100" \ # VIP of your Load Balancer
                     --pod-network-cidr=192.168.0.0/16 \
+                    --node-name $NODENAME \
                     --ignore-preflight-errors Swap
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
