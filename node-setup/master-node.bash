@@ -87,23 +87,22 @@ sudo kubeadm init --apiserver-advertise-address=$IPADDR \
                   --pod-network-cidr=$POD_CIDR --node-name $NODENAME \
                   --ignore-preflight-errors Swap
 
+# Init the HA Cluster
+kubeadm init --control-plane-endpoint="192.168.132.100:6443" \ # VIP of your Load Balancer
+                    --upload-certs  \
+                    --apiserver-cert-extra-sans="192.168.132.100" \ # VIP of your Load Balancer
+                    --pod-network-cidr=192.168.0.0/16 \
+                    --ignore-preflight-errors Swap
+
+export KUBECONFIG=/etc/kubernetes/admin.conf
+kubectl config view --kubeconfig=/etc/kubernetes/admin.conf
+kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes
+curl -k https://192.168.132.100:6443/healthz
+
+
 # Setup kubeconfig for the root user to access the cluster
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-
-
-
-CONTROL_PLANE_IP=$(ip -4 addr show $network_interface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-
-kubectl get cm -n kube-system kubeadm-config -o yaml > kubeadm-config-backup.yaml
-
-kubectl get cm -n kube-system kubeadm-config -o yaml | \
-  sed "/clusterName:/a\    controlPlaneEndpoint: $CONTROL_PLANE_IP" | \
-  kubectl apply -f -
-
-kubectl -n kube-system delete pod -l component=kube-apiserver
-
-echo "Reset configuration for master node."
 
