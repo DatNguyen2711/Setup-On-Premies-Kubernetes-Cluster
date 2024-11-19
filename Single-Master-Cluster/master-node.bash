@@ -88,20 +88,6 @@ sudo kubeadm init --apiserver-advertise-address=$IPADDR \
                   --node-name $NODENAME \
                   --ignore-preflight-errors Swap
 
-# Init the HA Cluster
-kubeadm init --control-plane-endpoint="192.168.132.100:6443" \ # VIP of your Load Balancer
-                    --upload-certs  \
-                    --apiserver-cert-extra-sans="192.168.132.100" \ # VIP of your Load Balancer
-                    --pod-network-cidr=192.168.0.0/16 \
-                    --node-name $NODENAME \
-                    --ignore-preflight-errors Swap
-
-export KUBECONFIG=/etc/kubernetes/admin.conf
-kubectl config view --kubeconfig=/etc/kubernetes/admin.conf
-kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes
-curl -k https://192.168.132.100:6443/healthz
-
-
 # Setup kubeconfig for the root user to access the cluster
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
