@@ -74,9 +74,9 @@ backend kubernetes-backend
   mode tcp
   option ssl-hello-chk
   balance roundrobin
-    server $MASTER_NODE1_NAME $MASTER_NODE1_ip:6443 check fall 3 rise 2
-    server $MASTER_NODE2_NAME $MASTER_NODE2_ip:6443 check fall 3 rise 2
-    server $MASTER_NODE3_NAME $MASTER_NODE3_ip:6443 check fall 3 rise 2
+    server $MASTER_NODE1_NAME $MASTER_NODE1_ip:6443 cookie p1 check fall 3 rise 2 
+    server $MASTER_NODE2_NAME $MASTER_NODE2_ip:6443 cookie p1 check fall 3 rise 2
+    server $MASTER_NODE3_NAME $MASTER_NODE3_ip:6443 cookie p1 check fall 3 rise 2
 
 EOF
 
